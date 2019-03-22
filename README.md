@@ -29,7 +29,7 @@
   
 ## Usage
 
-Run `boa -h` for a quick overview of functionality.
+Run `espy -h` for a quick overview of functionality.
 
 ### Run
 
