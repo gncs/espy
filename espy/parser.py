@@ -17,16 +17,18 @@ def parse_word(tag: bs4.Tag) -> List[WordBlock]:
     return blocks
 
 
-def parse_infinitive(soup: bs4.BeautifulSoup) -> List[WordBlock]:
-    return parse_word(soup.find('div', id='headword-es'))
+def parse_infinitive(soup: bs4.BeautifulSoup) -> Conjugation:
+    return Conjugation(name='Infinitive', forms=[parse_word(soup.find('div', id='headword-es'))])
 
 
-def parse_present_participle(soup: bs4.BeautifulSoup) -> List[WordBlock]:
-    return parse_word(soup.find('span', attrs={'data-tense': 'presentParticiple'}))
+def parse_present_participle(soup: bs4.BeautifulSoup) -> Conjugation:
+    return Conjugation(
+        name='Present Participle', forms=[parse_word(soup.find('span', attrs={'data-tense': 'presentParticiple'}))])
 
 
-def parse_past_participle(soup: bs4.BeautifulSoup) -> List[WordBlock]:
-    return parse_word(soup.find('span', attrs={'data-tense': 'pastParticiple'}))
+def parse_past_participle(soup: bs4.BeautifulSoup) -> Conjugation:
+    return Conjugation(
+        name='Past Participle', forms=[parse_word(soup.find('span', attrs={'data-tense': 'pastParticiple'}))])
 
 
 def parse_table_names(soup: bs4.BeautifulSoup) -> List[str]:

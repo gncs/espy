@@ -1,11 +1,9 @@
 import argparse
-from typing import List
 
 import bs4
 import requests
 
-from espy.data import Paradigm
-from espy.formatter import format_conjugation, format_word, format_bold
+from espy.formatter import format_paradigm
 from espy.parser import parse_paradigm
 from espy.version import __version__
 
@@ -27,12 +25,26 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument('verb', type=str, help='verb to be conjugated')
 
     parser.add_argument(
-        '--all',
-        dest='print_all',
+        '--no-names',
+        dest='no_names',
         action='store_true',
         default=False,
+        help="don't print conjugation and table names")
+
+    selection_group = parser.add_argument_group(title='selection')
+    selection_group.add_argument(
+        '--table',
         required=False,
-        help='print all conjugation tables')
+        action='append',
+        help='select conjugation table',
+    )
+
+    selection_group.add_argument(
+        '--conjugation',
+        required=False,
+        action='append',
+        help='select conjugation',
+    )
 
     return parser
 
@@ -52,21 +64,6 @@ def get_soup(response_content: bytes) -> bs4.BeautifulSoup:
     return bs4.BeautifulSoup(response_content, features='html.parser')
 
 
-def print_paradigm(paradigm: Paradigm, black_list: List[str]) -> None:
-    print('Infinitive: ' + format_word(paradigm.infinitive))
-    print('Present Participle: ' + format_word(paradigm.present_participle))
-    print('Past Participle: ' + format_word(paradigm.past_participle))
-
-    # Conjugation tables
-    for table in paradigm.conjugation_tables:
-        if table.name in black_list:
-            continue
-
-        print('\n' + format_bold(table.name) + ':')
-        for conjugation in table.conjugations:
-            print(format_conjugation(conjugation))
-
-
 def hook() -> None:
     args = create_parser().parse_args()
 
@@ -76,12 +73,11 @@ def hook() -> None:
 
     paradigm = parse_paradigm(soup)
 
-    if args.print_all:
-        black_list = []  # type: List[str]
-    else:
-        black_list = ['Continuous (Progressive)', 'Perfect', 'Perfect Subjunctive']
+    include_names = not args.no_names
+    blocks = format_paradigm(
+        paradigm, table_names=args.table, conjugation_names=args.conjugation, include_names=include_names)
 
-    print_paradigm(paradigm, black_list=black_list)
+    print('\n\n'.join(['\n'.join(block) for block in blocks]))
 
 
 if __name__ == '__main__':
