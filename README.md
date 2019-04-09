@@ -39,4 +39,8 @@ To get the conjugation tables for a Spanish verb run, for example:
 espy ser
 ```
 
+or
 
+```bash
+espy --no-names --conjugation='Future' --table='Indicative' recibir
+```
