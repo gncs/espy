@@ -77,7 +77,8 @@ def hook() -> None:
     blocks = format_paradigm(
         paradigm, table_names=args.table, conjugation_names=args.conjugation, include_names=include_names)
 
-    print('\n\n'.join(['\n'.join(block) for block in blocks]))
+    if blocks:
+        print('\n\n'.join(['\n'.join(block) for block in blocks]))
 
 
 if __name__ == '__main__':
