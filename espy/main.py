@@ -1,8 +1,10 @@
 import argparse
+import sys
 
 import bs4
 import requests
 
+from espy.data import Paradigm
 from espy.formatter import format_paradigm
 from espy.parser import parse_paradigm
 from espy.version import __version__
@@ -22,7 +24,7 @@ def create_parser() -> argparse.ArgumentParser:
 
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
 
-    parser.add_argument('verb', type=str, help='verb to be conjugated')
+    parser.add_argument('verb', type=str, help='verb to be conjugated (in the infinitive form)')
 
     parser.add_argument(
         '--no-names',
@@ -64,6 +66,13 @@ def get_soup(response_content: bytes) -> bs4.BeautifulSoup:
     return bs4.BeautifulSoup(response_content, features='html.parser')
 
 
+def check_infinitive(paradigm: Paradigm, query: str):
+    # Check that the infinitive of the results matches the query
+    infinitive = paradigm.infinitive.forms[0][0].content
+    if infinitive != query.strip():
+        sys.exit('The infinitive we found (' + infinitive + ') does not match your query (' + query + ')!')
+
+
 def hook() -> None:
     args = create_parser().parse_args()
 
@@ -72,6 +81,8 @@ def hook() -> None:
     soup = get_soup(page)
 
     paradigm = parse_paradigm(soup)
+
+    check_infinitive(paradigm, query=args.verb)
 
     include_names = not args.no_names
     blocks = format_paradigm(
